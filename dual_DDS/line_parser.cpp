@@ -20,7 +20,7 @@
  *    @code
  *          sprintf(line, "%s", "$GPGGA,123519,4807.038,N,01131.000,E,1,08,0.9,545.4,M,46.9,M,,*47");
  *          num_fields =  line_parser(line, ',');
- *          printf("\nThe string \"%s\" contains %d fields.  The individual fields are: \n", line, num_fields);
+ *          printf("\nThe string \"%s\" contains %d fields. The individual fields are: \n", line, num_fields);
  *          for (i = 1; i <= num_fields; i++){
  *              num_char_in_field = get_field(line, i);
  *              printf("\tfield %d with length %d = %s\n",i, num_char_in_field, line );
@@ -47,7 +47,7 @@
  *          field 15 with length 3 = *47
  *
  * @Note This function could have been designed using an array of pointers to hold the location of
- *       each field.  This would have made the results easier to use.  This was not done to keep the
+ *       each field.  This would have made the results easier to use. This was not done to keep the
  *       array as small as possible - an important decision for use with smaller computers such
  *       as Arduino.
  *
@@ -107,7 +107,7 @@ uint8_t line_parser(char *line, char delim){
 
 uint8_t get_field(char *field, uint8_t N){
 
-    uint8_t i = field_offsets[N - 1];               // simplify use by starting at field 1 instead of field 0
+    uint8_t i = field_offsets[N - 1];               // Simplify use by starting at field 1 instead of field 0
     uint8_t cnt = 0;
 
     while(i < BUF_LEN - 1){                         // Save space for null termination
@@ -125,8 +125,6 @@ uint8_t get_field(char *field, uint8_t N){
 
 
 
-
-//uint8_t is_number(char *P){
     uint8_t is_line_field_num(uint8_t N){           // FIXME fix this function or remove it...
 
     uint8_t result = 0x01;
@@ -141,19 +139,4 @@ uint8_t get_field(char *field, uint8_t N){
     */
     return result;
 }
-
-
-
-
-
-
-/*
-char *field_in_line(uint8_t field){
-    extern *line;
-    extern *line_field_ofsets;
-    return line + line_field_offsets[field];
-}
-
-*/
-
 

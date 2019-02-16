@@ -2,7 +2,6 @@
     #include <avr/io.h>
     #include <avr/interrupt.h>
     #include <stdint.h>
-
     #include "USART.h"
 
 
@@ -23,18 +22,18 @@
 
  /** USART_handle_ISR
  * @brief This Interrupt Service Routine is called when a new character is received by the USART.
- * As quickly as possible, the AVR transfers the character to a circular buffer.  The main loop code
- * then retrieves data from this buffer.  Observe that this mechanism allows data to be received at
+ * As quickly as possible, the AVR transfers the character to a circular buffer. The main loop code
+ * then retrieves data from this buffer. Observe that this mechanism allows data to be received at
  * a high rate of speed independent of the main loop.
  *
- * @CAUTION Ideally the entire ISR would be located in this file.  Unfortunately there is a error
- * "multiple definition of `vector_18".  Apparently Arduino detects when an ISR is in the main
- * sketch.  If you place it somewhere else it is missed and replaced with the Arduino handler.
- * This is the source of the multiple definitions error.  See discussion at:
+ * @CAUTION Ideally, the entire ISR would be located in this file. Unfortunately, there is a error
+ * "multiple definition of `vector_18". Apparently, Arduino detects when an ISR is in the main
+ * sketch. If you place it somewhere else, it is missed and replaced with the Arduino handler.
+ * This is the source of the multiple definitions error. See discussion at:
  *
  *     http://forum.arduino.cc/index.php?topic=42153.0
  *
- * Note that the three variables used in this function are all global is scope.  This was done so
+ * Note that the three variables used in this function are all global is scope. This was done so
  * that this function could be included in the projects main page.
  *
  * @note The vector name is not "USART_RXC" as indicated in the data sheet.
@@ -44,6 +43,7 @@
  * complete routine must read the received data from UDRn in order to clear the RXCn Flag, otherwise
  * a new interrupt will occur once the interrupt routine terminates.
  */
+
 void USART_handle_ISR(void){
    circ_buf[circ_buf_head] = UDR0;
    circ_buf_head++;

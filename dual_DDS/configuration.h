@@ -9,27 +9,10 @@
 
     #define BUF_LEN 100
 
-    #define MAX_FIELDS 20           // must be less than 127
-
+    #define MAX_FIELDS 20           // FIXME must be less than 127 but I can't remember why... 
 
 
     //Program specific
-
-
-
-
-        
-  
-       #define RED_LED_PIN 10
-       #define GREEN_LED_PIN 11
-       #define BLUE_LED_PIN 12
-
-    // Joystick
-
-
-
-    #define LED_PIN 13
-    #define BUZ_PIN 2
 
 
 #endif

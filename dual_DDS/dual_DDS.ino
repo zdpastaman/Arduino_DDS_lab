@@ -25,6 +25,7 @@
     #include <stdint.h>
     #include <string.h>
     #include <ctype.h>
+    #include <stdio.h>
 
 
 // Arduino libraries: see http://arduino.cc/en/Reference/Libraries
@@ -48,18 +49,19 @@
 void setup(){
 
     init_timer_1_CTC(F_ISR); // Enable the timer ISR
-    
+
     USART_init(F_CLK, BAUD_RATE);
 
     DDS_set_PIR(PIR);
     DDS_on( );
 
-    pinMode(3, OUTPUT);
-    pinMode(11, OUTPUT);
-    TCCR2A = _BV(COM2A1) | _BV(COM2B1) | _BV(WGM21) | _BV(WGM20);
-    TCCR2B = _BV(CS20);  // No prescaling)                          // This register controls PWM frequency
-    OCR2A = 0;                                                      // Arduino I/O pin # 11 duty cycle
-    OCR2B = 0;                                                      // Arduino I/O pin # 3 duty cycle
+    // Use the ATMega328p "fast PWM" a.k.a hardware PWM for best performance  
+        pinMode(3, OUTPUT);
+        pinMode(11, OUTPUT);
+        TCCR2A = _BV(COM2A1) | _BV(COM2B1) | _BV(WGM21) | _BV(WGM20);
+        TCCR2B = _BV(CS20);  // No prescaling)                          // This register controls thePWM frequency
+        OCR2A = 0;                                                      // Duty cycle for I/O pin D11
+        OCR2B = 0;                                                      // Duty cycle for I/O pin D3
 
 }
 
@@ -83,6 +85,7 @@ ISR(USART_RX_vect){
  * somewhere else it is missed and replaced with the Arduino handler.  This is the source of the
  * multiple definitions error -  * see discussion @ http://forum.arduino.cc/index.php?topic=42153.0
  */
+
     USART_handle_ISR();
 
 }
@@ -103,7 +106,7 @@ ISR(TIMER1_COMPA_vect){
     uint16_t DDS_value_1 = DDS_service_1();
     uint16_t DDS_value_2 = DDS_service_2(PIR*14);
 
-    OCR2A = (DDS_value_1 >> 4) ;
+    OCR2A = (DDS_value_1 >> 4) ;                    // The DDS returns a 12 bit value whiel the PWM register is 12 bits
     OCR2B = (DDS_value_2 >> 4) ;
 
 }
@@ -121,27 +124,25 @@ ISR(TIMER1_COMPA_vect){
 
 void loop(){
 
-    char line[100];
+    char line[BUF_LEN];
 
         //     uint16_t CRC =  GS1_CRC_gen(test_str_hex, length_test_str_hex);
 
-        sprintf(line, "hello\n");
+        snprintf(line, BUF_LEN, "hello\n");
 
      USART_puts(line);
 
     while(1){
 
-    ;
+        ;
+
+        //FIXME: Add code prompting the user to enter the desired phase shift...
 
     }
 }
 
 
 
-
-	
-	
-	
 void init_timer_1_CTC(long desired_ISR_freq){
 /**
  * @brief Configure timer #1 to operate in Clear Timer on Capture Match (CTC Mode)
@@ -175,6 +176,6 @@ void init_timer_1_CTC(long desired_ISR_freq){
     TCCR1B |= (1 << CS10)|(1 << CS11);              // Prescale: divide by F_CLK by 64.  Note SC12 already cleared
     OCR1A = (F_CLK / 64L) / desired_ISR_freq;       // Interrupt when TCNT1 equals the top value of the counter specified by OCR
     sei();                                          // Enable global
-}	
-	
+}
+
 
