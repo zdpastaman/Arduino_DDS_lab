@@ -92,10 +92,11 @@ const uint16_t SIN_Lookup_Table[512]={
  *
 */
 uint16_t DDS_service (void){
-	return DDS_service_1( );
+    return DDS_service_1( );
 }
 
- uint16_t DDS_service_1 (void){
+
+uint16_t DDS_service_1 (void){
 
     static uint32_t temp_32;
     static uint32_t accumulator_32 = 0;
@@ -103,18 +104,18 @@ uint16_t DDS_service (void){
 
     accumulator_32 += PIR;
 
-    temp_32 = accumulator_32 >> 23;                // The DDS has 512 elements in the sin look-up table -
+    temp_32 = accumulator_32 >> 23;                // The DDS has 512 elements in the sin look-up table
 
     if (DDS_ctrl == 0x01){
-		return  *(SIN_Lookup_Table + temp_32);     // get the sin wave
+        return  *(SIN_Lookup_Table + temp_32);     // get the sin wave
     }
     else{
         return 0x0000;
     }
 }
- 
- 
-  uint16_t DDS_service_2 (uint32_t phase_shift){
+
+
+uint16_t DDS_service_2 (uint32_t phase_shift){
 
     static uint32_t temp_32;
     static uint32_t accumulator_32 = phase_shift;
@@ -122,7 +123,7 @@ uint16_t DDS_service (void){
 
     accumulator_32 += PIR;
 
-    temp_32 = accumulator_32 >> 23;                // The DDS has 512 elements in the sin look-up table -
+    temp_32 = accumulator_32 >> 23;                // The DDS has 512 elements in the sin look-up table
 
     if (DDS_ctrl == 0x01){
        return  *(SIN_Lookup_Table + temp_32);     // get the sin wave
@@ -131,8 +132,6 @@ uint16_t DDS_service (void){
         return 0x0000;
     }
 }
-
-
 
 
 /**
@@ -159,7 +158,7 @@ uint16_t DDS_service (void){
  }
 
 
-//TODO: Wouldn't it be easier to pass the desired frequency instead of the PIR...
+//TODO: Wouldn't it be easier to pass the desired frequency instead of the PIR?
  /**
   * @brief Set the DDS frequency.
   *

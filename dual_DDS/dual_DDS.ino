@@ -44,7 +44,7 @@
     #define F_ISR 10000
     #define F_OUT 60
     #define PIR 25769803
-//#define PIR (uint32_t) (F_OUT * 2^32) / F_ISR
+//#define PIR (uint32_t) (F_OUT * 2^32) / F_ISR     //FIXME 
 
 void setup(){
 
@@ -55,11 +55,12 @@ void setup(){
     DDS_set_PIR(PIR);
     DDS_on( );
 
-    // Use the ATMega328p "fast PWM" a.k.a hardware PWM for best performance  
+    // Use the ATMega328p "fast PWM" a.k.a. hardware PWM for best performance
+
         pinMode(3, OUTPUT);
         pinMode(11, OUTPUT);
         TCCR2A = _BV(COM2A1) | _BV(COM2B1) | _BV(WGM21) | _BV(WGM20);
-        TCCR2B = _BV(CS20);  // No prescaling)                          // This register controls thePWM frequency
+        TCCR2B = _BV(CS20);  // No prescaling)                          // This register controls the PWM frequency
         OCR2A = 0;                                                      // Duty cycle for I/O pin D11
         OCR2B = 0;                                                      // Duty cycle for I/O pin D3
 
@@ -81,8 +82,8 @@ ISR(USART_RX_vect){
  /**
  * @note This Interrupt Service Routine is called when a new character is received by the USART.
  * Ideally it would have been placed in the USART.cpp file but there is a error "multiple definition
- * of vector_18".  Apparently Arduino detects when an ISR is in the main sketch.  If you place it
- * somewhere else it is missed and replaced with the Arduino handler.  This is the source of the
+ * of vector_18". Apparently Arduino detects when an ISR is in the main sketch. If you place it
+ * somewhere else it is missed and replaced with the Arduino handler. This is the source of the
  * multiple definitions error -  * see discussion @ http://forum.arduino.cc/index.php?topic=42153.0
  */
 
@@ -96,18 +97,18 @@ ISR(TIMER1_COMPA_vect){
  * for the Arduino. See the companion function init_timer_1_CTC for additional 
  * information.
  *
- * @ Note:
+ * @Note:
  *    1) Compiler generated code pushes status register and any used registers to stack.
- *    2) Calling a subroutine from the ISR causes compiler to save all 32 registers; a 
- *       slow operation (fact check). 
+ *    2) Calling a subroutine from the ISR causes compiler to save all 32 registers; a
+ *       slow operation (FIXME fact check).
  *    3) Status and used registers are popped by compiler generated code.
  */
 
-    uint16_t DDS_value_1 = DDS_service_1();
+    uint16_t DDS_value_1 = DDS_service_1( );
     uint16_t DDS_value_2 = DDS_service_2(PIR*14);
 
-    OCR2A = (DDS_value_1 >> 4) ;                    // The DDS returns a 12 bit value whiel the PWM register is 12 bits
-    OCR2B = (DDS_value_2 >> 4) ;
+    OCR2A = (DDS_value_1 >> 4);                    // The DDS returns a 12-bit value while the PWM register is only 8-bits
+    OCR2B = (DDS_value_2 >> 4);
 
 }
 
@@ -126,11 +127,9 @@ void loop(){
 
     char line[BUF_LEN];
 
-        //     uint16_t CRC =  GS1_CRC_gen(test_str_hex, length_test_str_hex);
+    snprintf(line, BUF_LEN, "hello\n");
 
-        snprintf(line, BUF_LEN, "hello\n");
-
-     USART_puts(line);
+    USART_puts(line);
 
     while(1){
 
