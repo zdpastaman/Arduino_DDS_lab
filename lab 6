@@ -1,0 +1,225 @@
+/*
+ * Dual DDS
+ *
+ * Copyright 2019 Aaron P. Dahlen       APDahlen@gmail.com
+ *
+ * This program is free software: you can redistribute it and/or modify it under the terms
+ * of the GNU General Public License as published by the Free Software Foundation, either
+ * version 3 of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along with this program.
+ * If not, see <http://www.gnu.org/licenses/>.
+ */
+
+
+// AVR GCC libraries for more information see:
+//     http://www.nongnu.org/avr-libc/user-manual/modules.html
+//     https://www.gnu.org/software/libc/manual/
+
+    #include <avr/io.h>
+    #include <avr/interrupt.h>
+    #include <stdint.h>
+    #include <string.h>
+    #include <ctype.h>
+    #include <stdio.h>
+
+
+// Arduino libraries: see http://arduino.cc/en/Reference/Libraries
+
+
+// Project specific includes
+
+    #include "configuration.h"
+    #include "line_parser.h"
+    #include "USART.h"
+
+
+// Global variables
+
+
+void setup(){
+
+  //  init_timer_1_CTC(F_ISR); // Enable the timer ISR
+
+    USART_set_terminator(LINE_TERMINATOR);
+    USART_init(F_CLK, BAUD_RATE);
+
+}
+
+
+/*********************************************************************************
+ *  ______  ____   _____   ______  _____  _____    ____   _    _  _   _  _____
+ * |  ____|/ __ \ |  __ \ |  ____|/ ____||  __ \  / __ \ | |  | || \ | ||  __ \
+ * | |__  | |  | || |__) || |__  | |  __ | |__) || |  | || |  | ||  \| || |  | |
+ * |  __| | |  | ||  _  / |  __| | | |_ ||  _  / | |  | || |  | || . ` || |  | |
+ * | |    | |__| || | \ \ | |____| |__| || | \ \ | |__| || |__| || |\  || |__| |
+ * |_|     \____/ |_|  \_\|______|\_____||_|  \_\ \____/  \____/ |_| \_||_____/
+ *
+ ********************************************************************************/
+
+ISR(USART_RX_vect){
+
+ /**
+ * @note This Interrupt Service Routine is called when a new character is received by the USART.
+ * Ideally it would have been placed in the USART.cpp file but there is a error "multiple definition
+ * of vector_18". Apparently Arduino detects when an ISR is in the main sketch. If you place it
+ * somewhere else it is missed and replaced with the Arduino handler. This is the source of the
+ * multiple definitions error -  * see discussion @ http://forum.arduino.cc/index.php?topic=42153.0
+ */
+
+    USART_handle_ISR();
+
+}
+
+ISR(TIMER1_COMPA_vect){
+
+/** @brief This Interrupt Service Routine (ISR) serves as the heartbeat 
+ * for the Arduino. See the companion function init_timer_1_CTC for additional 
+ * information.
+ *
+ * @Note:
+ *    1) Compiler generated code pushes status register and any used registers to stack.
+ *    2) Calling a subroutine from the ISR causes compiler to save all 32 registers; a
+ *       slow operation (FIXME fact check).
+ *    3) Status and used registers are popped by compiler generated code.
+ */
+
+    // ISR code
+
+}
+
+
+/*********************************************************************************
+ *  ____            _____  _  __ _____  _____    ____   _    _  _   _  _____
+ * |  _ \    /\    / ____|| |/ // ____||  __ \  / __ \ | |  | || \ | ||  __ \
+ * | |_) |  /  \  | |     | ' /| |  __ | |__) || |  | || |  | ||  \| || |  | |
+ * |  _ <  / /\ \ | |     |  < | | |_ ||  _  / | |  | || |  | || . ` || |  | |
+ * | |_) |/ ____ \| |____ | . \| |__| || | \ \ | |__| || |__| || |\  || |__| |
+ * |____//_/    \_\\_____||_|\_\\_____||_|  \_\ \____/  \____/ |_| \_||_____/
+ *
+ ********************************************************************************/
+
+void loop(){
+
+    char line[BUF_LEN];
+    char user_entered_string[10];
+    int8_t band_1, band_2, band_3, band_4;
+
+    USART_gets(user_entered_string);       // clear the USART before we start
+
+    snprintf(line, BUF_LEN, "The resistor calculator will calculate the value of a resistor given the color codes.\n\n");
+    USART_puts(line);
+    snprintf(line, BUF_LEN, "The color bands are entered as the lower case words:\n\n");
+    USART_puts(line);
+    snprintf(line, BUF_LEN, "\t black\n \t brown \n \t red \n \t yellow \n \t ...\n\t none \n\n");
+    USART_puts(line);
+
+// Get color band #1:
+
+    snprintf(line, BUF_LEN, "Please enter the first color band and then press enter:\n");
+    USART_puts(line);
+
+    while(!USART_is_string());          // Do nothing until the user enters a value and presses the return
+
+    USART_gets(user_entered_string);
+    band_1 = string_2_num(user_entered_string);
+
+    snprintf(line, BUF_LEN, "\tYou entered %s, that translates to the number %d\n", user_entered_string, band_1 );
+    USART_puts(line);
+
+
+
+// Get color band #2:
+
+  // TODO
+
+
+
+ // Get color band #3:
+
+  // TODO
+
+
+
+// Get color band #4:
+
+  // TODO
+
+
+
+// Perform the calculations:
+
+    /* TODO
+     *
+     * Calculate and print the value of the resistor e.g., 
+     *
+     *     You have specified a 1000 Ohm resistor
+     *
+     * Calculate and print the range of acceptable resistors based on the tolerance e.g.,
+     *
+     *     Based on the tolerance, expect 1050 < R < 1050 Ohms. 
+     *
+     */
+
+} // end loop
+
+
+
+int8_t string_2_num(char *line){
+
+    if(0 == strcmp(line, "black")){           // strcmp returns 0 on match
+        return 0;
+    }
+    else if(0 == strcmp(line, "brown")){
+        return 1;
+    }
+
+    // TODO: insert the other colors here
+
+    else if(0 == strcmp(line, "none")){      // FIXME there are no guards against users entering none, none, none, none 
+        return 10;
+    }else{
+        return -1;
+    }
+} // end string_2_num
+
+
+
+void init_timer_1_CTC(long desired_ISR_freq){
+/**
+ * @brief Configure timer #1 to operate in Clear Timer on Capture Match (CTC Mode)
+ *
+ *      desired_ISR_freq = (F_CLK / prescale value) /  Output Compare Registers
+ *
+ *   For example:
+ *        Given an Arduino Uno: F_clk = 16 MHz
+ *        let prescale                = 64
+ *        let desired ISR heartbeat   = 100 Hz
+ *
+ *        if follows that OCR1A = 2500
+ *
+ * @param desired_ISR_freq is the desired operating frequency of the ISR
+ * @param F_CLK must be defined globally e.g., #define F_CLK 16000000L
+ *
+ * @return void
+ *
+ * @note The prescale value is set manually in this function.  Refer to ATMEL ATmega48A/PA/88A/PA/168A/PA/328/P datasheet for specific settings.
+ *
+ * @warning There are no checks on the desired_ISR_freq parameter.  Use this function with caution.
+ *
+ * @warning Use of this code will break the Arduino Servo() library.
+ */
+
+    cli();                                          // Disable global
+    TCCR1A = 0;                                     // Clear timer counter control registers.  The initial value is zero but it appears Arduino code modifies them on startup...
+    TCCR1B = 0;
+    TCCR1B |= (1 << WGM12);                         // Timer #1 using CTC mode
+    TIMSK1 |= (1 << OCIE1A);                        // Enable CTC interrupt
+    TCCR1B |= (1 << CS10)|(1 << CS11);              // Prescale: divide by F_CLK by 64.  Note SC12 already cleared
+    OCR1A = (F_CLK / 64L) / desired_ISR_freq;       // Interrupt when TCNT1 equals the top value of the counter specified by OCR
+    sei();                                          // Enable global
+} // end init_timer_1_CTC
